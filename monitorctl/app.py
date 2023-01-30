@@ -161,7 +161,7 @@ def notify_profile_loaded(profile_name: str):
 def run_profile_loaded_hook():
     cmd = config.on_profile_load_cmd()
     if cmd:
-        run(cmd)
+        run(cmd, disown=True)
 
 
 def auto_select_profile() -> str:
