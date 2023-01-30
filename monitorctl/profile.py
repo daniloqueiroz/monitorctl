@@ -23,7 +23,7 @@ class RelativePosition:
 class ProfileMonitor:
     output: str
     desktops: List[str]
-    resolution: str = auto
+    resolution: str = "auto"
     rotation: str = "normal"
     position: Optional[RelativePosition] = None
 
