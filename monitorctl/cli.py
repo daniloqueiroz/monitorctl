@@ -23,9 +23,9 @@ def cli(config):
 
 
 @cli.command()
-def status():
+def details():
     """
-    Show the current monitors and desktops
+    Show the current monitors, existing profiles and the auto profile for the current setup
     """
     secho("Current monitors:", fg="blue")
     for mon in app.monitor_status():
@@ -36,21 +36,17 @@ def status():
         color = "green" if mon.is_connected else "red"
         secho(f" → {mon.name} desktops: {desktops}", fg=color)
 
-
-@cli.command()
-def list_profiles():
-    """
-    List the available profiles
-    """
     secho(f"Profiles list:", fg="blue")
     for profile in app.config.profiles():
         secho(f" → {profile.name}", fg="green")
-    secho(f"Auto selected profile based on current status: {app.auto_select_profile()}", fg="blue")
+
+    secho(f"Auto selected profile based on current status:", fg="blue")
+    secho(f" → {app.auto_select_profile()}", fg="green")
 
 
 @cli.command()
 @click.argument('profile_name')
-def show_profile(profile_name: str):
+def show(profile_name: str):
     """
     Shows a given profile details
     """
@@ -60,26 +56,23 @@ def show_profile(profile_name: str):
 
 
 @cli.command()
-@click.argument('profile_name')
-def apply_profile(profile_name: str):
+@click.argument('profile_name', required=False)
+@click.option('--auto', is_flag=True)
+def apply(profile_name: str, auto: bool):
     """
     Applies a profile (if suitable)
     """
-    # find profile
+    if auto:
+        if profile_name:
+            secho("Invalid input. Use either 'apply <profile>' or 'apply --auto'")
+            exit(1)
+        else:
+            secho(f"Auto detecting profile", fg="blue")
+            profile_name = app.auto_select_profile()
+
     profile = _get_profile_or_abort(profile_name)
     secho(f"Applying profile '{profile_name}'", fg="blue")
-
     virtual_mon = app.disable_all_monitors()
     app.configure_profile_monitors(profile, virtual_mon)
     app.notify_profile_loaded(profile_name)
     app.run_profile_loaded_hook()
-
-
-@cli.command()
-@click.pass_context
-def apply_auto(ctx):
-    """
-    Auto-detect best profile to use and apply it
-    """
-    secho(f"Auto detecting profile", fg="blue")
-    ctx.invoke(apply_profile, profile_name=app.auto_select_profile())

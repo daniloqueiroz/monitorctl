@@ -3,3 +3,5 @@
 dist/
 monitor.iml
 profiles.yml
+monitorctl/__pycache__/
+venv
