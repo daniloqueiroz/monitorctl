@@ -23,25 +23,30 @@ def cli(config):
 
 
 @cli.command()
-def details():
+@click.option("-s", "--show", "show_only", type=click.Choice(["monitors", "profiles", "autoselect"], case_sensitive=False))
+def details(show_only):
     """
-    Show the current monitors, existing profiles and the auto profile for the current setup
+    Show the current monitors, existing profiles and
+    the autoselect profile for the current setup
     """
-    secho("Current monitors:", fg="blue")
-    for mon in app.monitor_status():
-        if mon.desktops:
-            desktops = " ".join(map(lambda m: m.name, mon.desktops))
-        else:
-            desktops = "monitor not in bspwm"
-        color = "green" if mon.is_connected else "red"
-        secho(f" → {mon.name} desktops: {desktops}", fg=color)
+    if not show_only or show_only == "monitors":
+        secho("Current monitors:", fg="blue")
+        for mon in app.monitor_status():
+            if mon.desktops:
+                desktops = " ".join(map(lambda m: m.name, mon.desktops))
+            else:
+                desktops = "monitor not in bspwm"
+            color = "green" if mon.is_connected else "red"
+            secho(f" → {mon.name} desktops: {desktops}", fg=color)
 
-    secho(f"Profiles list:", fg="blue")
-    for profile in app.config.profiles():
-        secho(f" → {profile.name}", fg="green")
+    if not show_only or show_only == "profiles":
+        secho(f"Profiles list:", fg="blue")
+        for profile in app.config.profiles():
+            secho(f" → {profile.name}", fg="green")
 
-    secho(f"Auto selected profile based on current status:", fg="blue")
-    secho(f" → {app.auto_select_profile()}", fg="green")
+    if not show_only or show_only == "autoselect":
+        secho(f"Auto selected profile based on current status:", fg="blue")
+        secho(f" → {app.auto_select_profile()}", fg="green")
 
 
 @cli.command()
